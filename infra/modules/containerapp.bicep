@@ -2,6 +2,7 @@ param name string
 param image string
 param location string
 param containerAppName string
+param storageAccountName string
 param ingress bool = false
 param port int = 80
 param envVars array = []
@@ -23,7 +24,7 @@ resource env 'Microsoft.App/managedEnvironments@2022-03-01' existing = {
 }
 
 resource storage 'Microsoft.Storage/storageAccounts@2021-09-01' existing = {
-  name: '${abbrs.storageStorageAccounts}${resourceToken}'
+  name: '${storageAccountName}${resourceToken}'
 }
 
 var localEnvVars = [

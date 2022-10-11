@@ -15,21 +15,23 @@ resource acr 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' = {
   }
 }
 
-resource storage 'Microsoft.Storage/storageAccounts@2021-09-01' = {
-  name: '${abbrs.storageStorageAccounts}${resourceToken}'
+resource storageNotify 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+  name: '${abbrs.storageAccountNotify}${resourceToken}'
   location: location
   tags: tags
   kind: 'StorageV2'
   sku: {
     name: 'Standard_LRS'
   }
-  properties: {
-    minimumTlsVersion: 'TLS1_2'
-    allowBlobPublicAccess: false
-    networkAcls: {
-      bypass: 'AzureServices'
-      defaultAction: 'Allow'
-    }
+}
+
+resource storageProcess 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+  name: '${abbrs.storageAccountProcess}${resourceToken}'
+  location: location
+  tags: tags
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
   }
 }
 
