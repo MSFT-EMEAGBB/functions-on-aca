@@ -3,7 +3,7 @@ param location string
 param image string
 
 var abbrs = loadJsonContent('../abbreviations.json')
-var containerAppName = 'gamecontroller'
+var containerAppName = 'notify'
 
 // create the various config pairs
 var envVars = [
