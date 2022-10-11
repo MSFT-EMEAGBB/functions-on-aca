@@ -1,9 +1,23 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
 
 name: functions-on-aca
-infra:
-    provider: ""
-    path: ""
-    module: ""
-pipeline:
-    provider: ""
+services:
+  notifier:
+    project: src/NotificationFunction
+    dist: build
+    language: csharp
+    host: containerapp
+    module: modules/notifier
+    docker:
+      path: ./Dockerfile
+      context: ../
+  processor:
+    project: src/ProcessingFunction
+    language: csharp
+    host: containerapp
+    module: modules/processor
+    docker:
+      path: ./Dockerfile
+      context: ../
+
+

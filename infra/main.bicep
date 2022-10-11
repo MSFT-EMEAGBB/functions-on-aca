@@ -1,86 +1,33 @@
-param location string = resourceGroup().location
+targetScope = 'subscription'
 
+@minLength(1)
+@maxLength(50)
+@description('Name of the the environment which is used to generate a short unique hash used in all resources.')
+param name string
 
-@secure()
-param registryPassword string
-param registryUsername string
-param containerRegistry string
+@minLength(1)
+@description('Primary location for all resources')
+param location string
 
-param func1Image string
-param fun2Image string
+var resourceToken = toLower(uniqueString(subscription().id, name, location))
+var tags = { 'azd-env-name': name }
+var abbrs = loadJsonContent('abbreviations.json')
 
-// create the aca environment
-module env 'modules/ca-environment.bicep' = {
-  name: 'containerAppEnvironment'
-}
-
-// create the various config pairs
-var env_vars = [
-  
-]
-
-var secrets = [
-  {
-    name: 'container-registry-password'
-    value: registryPassword
-  }
-]    
-
-
-
-module backstage 'modules/container.bicep' = {
-  name: 'func1'
-  params: {
-    name: 'func1'
+resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+    name: '${abbrs.resourcesResourceGroups}${name}'
     location: location
-    registryUsername: registryUsername
-    containerAppEnvironmentId: env.outputs.id
-    registry: containerRegistry
-    envVars: env_vars
-    sec: secrets
-    externalIngress: true
-    repositoryImage: func1Image
-    port: 80
-    aadAuth: false
-    probes:[
-      {
-        failureThreshold: 5
-        httpGet: {
-          path: '/healthcheck'
-          port: 80
-        }
-        initialDelaySeconds: 60
-        periodSeconds: 10
-        timeoutSeconds: 3
-        type: 'liveness'
-      }
-      {
-        failureThreshold: 5
-        httpGet: {
-          path: '/healthcheck'
-          port: 80
-        }
-        initialDelaySeconds: 20
-        periodSeconds: 10
-        timeoutSeconds: 3
-        type: 'startup'
-      }
-      {
-        failureThreshold: 5
-        httpGet: {
-          path: '/healthcheck'
-          port: 80
-        }
-        initialDelaySeconds: 40
-        periodSeconds: 10
-        timeoutSeconds: 3
-        type: 'readiness'
-      }
-    ]
-  }
+    tags: tags
 }
 
+module resources 'resources.bicep' = {
+    name: 'resources'
+    scope: rg
+    params: {
+        location: location
+        resourceToken: resourceToken
+        tags: tags
+    }
+}
 
-
-
-
+output AZURE_LOCATION string = location
+output AZURE_CONTAINER_REGISTRY_ENDPOINT string = resources.outputs.AZURE_CONTAINER_REGISTRY_ENDPOINT
