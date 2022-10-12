@@ -35,6 +35,16 @@ resource storageProcess 'Microsoft.Storage/storageAccounts@2021-09-01' = {
   }
 }
 
+resource storageShared 'Microsoft.Storage/storageAccounts@2021-09-01' = {
+  name: '${abbrs.storageAccountShared}${resourceToken}'
+  location: location
+  tags: tags
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+
 resource logs 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' = {
   name: '${abbrs.operationalInsightsWorkspaces}${resourceToken}'
   location: location

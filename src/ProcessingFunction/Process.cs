@@ -1,16 +1,22 @@
 using System;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Host;
+using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 
 namespace ProcessingFunction
 {
     public class Process
     {
-        [FunctionName("Process")]
-        public void Run([QueueTrigger("myqueue-items", Connection = "")]string myQueueItem, ILogger log)
+        private readonly ILogger _logger;
+
+        public Process(ILoggerFactory loggerFactory)
         {
-            log.LogInformation($"C# Queue trigger function processed: {myQueueItem}");
+            _logger = loggerFactory.CreateLogger<Process>();
+        }
+
+        [Function("Process")]
+        public void Run([QueueTrigger("myqueue-items", Connection = "")] string myQueueItem)
+        {
+            _logger.LogInformation($"C# Queue trigger function processed: {myQueueItem}");
         }
     }
 }

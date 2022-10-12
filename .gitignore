@@ -1,2 +1,5 @@
 
 .azure
+__azurite*
+__blobstorage*
+__queuestorage*

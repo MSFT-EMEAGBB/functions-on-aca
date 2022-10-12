@@ -5,15 +5,10 @@ param image string
 var abbrs = loadJsonContent('../abbreviations.json')
 var containerAppName = 'notify'
 
-// create the various config pairs
-var envVars = [
+var envVar = [
   {
-    name: 'FUNCTIONS_EXTENSION_VERSION'
-    value: '~4'
-  }
-  {
-    name: 'FUNCTIONS_WORKER_RUNTIME'
-    value: 'dotnet'
+    name: 'AzureFunctionsJobHost__functions__0'
+    value: 'Notify'
   }
 ]
 
@@ -23,8 +18,8 @@ module containerApp 'containerapp.bicep' = {
     name: name
     storageAccountName: abbrs.storageAccountProcess
     location: location
-    envVars: envVars
     containerAppName: containerAppName
+    envVars: envVar
     image: image
     ingress: true 
   }
