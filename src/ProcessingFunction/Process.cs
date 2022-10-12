@@ -14,7 +14,7 @@ namespace ProcessingFunction
         }
 
         [Function("Process")]
-        public void Run([QueueTrigger("myqueue-items", Connection = "")] string myQueueItem)
+        public void Run([QueueTrigger("processing-queue", Connection = "SharedStorage")] string myQueueItem)
         {
             _logger.LogInformation($"C# Queue trigger function processed: {myQueueItem}");
         }

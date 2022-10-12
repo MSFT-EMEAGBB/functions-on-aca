@@ -14,27 +14,10 @@ namespace NotificationFunction
         }
 
         [Function("Notify")]
-        [QueueOutput("output-queue")]
-        public void Run([TimerTrigger("0 */5 * * * *")] MyInfo myTimer)
+        [QueueOutput("processing-queue", Connection = "SharedStorage")]
+        public string[] Run([TimerTrigger("*/10 * * * * *")] TimerInfo timerInfo)
         {
-            _logger.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
-            _logger.LogInformation($"Next timer schedule at: {myTimer.ScheduleStatus.Next}");
+            return new[] {"Hello"};
         }
-    }
-
-    public class MyInfo
-    {
-        public MyScheduleStatus ScheduleStatus { get; set; }
-
-        public bool IsPastDue { get; set; }
-    }
-
-    public class MyScheduleStatus
-    {
-        public DateTime Last { get; set; }
-
-        public DateTime Next { get; set; }
-
-        public DateTime LastUpdated { get; set; }
     }
 }
