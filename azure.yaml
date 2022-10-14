@@ -10,7 +10,7 @@ services:
     module: modules/notifier
     docker:
       path: ./Dockerfile
-      context: ../
+      context: .
   processor:
     project: src/ProcessingFunction
     language: csharp
@@ -18,6 +18,6 @@ services:
     module: modules/processor
     docker:
       path: ./Dockerfile
-      context: ../
+      context: .
 
 

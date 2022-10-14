@@ -2,24 +2,16 @@ param name string
 param location string
 param image string
 
-var abbrs = loadJsonContent('../abbreviations.json')
-var containerAppName = 'notify'
-
-var envVar = [
-  {
-    name: 'AzureFunctionsJobHost__functions__0'
-    value: 'Notify'
-  }
-]
+var containerAppName = 'notifier'
 
 module containerApp 'containerapp.bicep' = {
   name: 'containerapp-${containerAppName}'
   params: {
     name: name
-    storageAccountName: abbrs.storageAccountProcess
+    storageAccountName: 'stn'
     location: location
     containerAppName: containerAppName
-    envVars: envVar
+    functions: 'Notify'
     image: image
     ingress: true 
   }

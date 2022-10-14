@@ -4,12 +4,16 @@ param location string
 param containerAppName string
 param storageAccountName string
 param ingress bool = false
+param functions string
 param port int = 80
-param envVars array = []
+param minReplicas int = 1
+param maxReplicas int = 1
+param scaleRules array = []
 
 var resourceToken = toLower(uniqueString(subscription().id, name, location))
 var tags = { 'azd-env-name': name }
 var abbrs = loadJsonContent('../abbreviations.json')
+
 
 resource acr 'Microsoft.ContainerRegistry/registries@2022-02-01-preview' existing = {
   name: '${abbrs.containerRegistryRegistries}${resourceToken}'
@@ -27,10 +31,17 @@ resource storage 'Microsoft.Storage/storageAccounts@2021-09-01' existing = {
   name: '${storageAccountName}${resourceToken}'
 }
 
-var localEnvVars = [
+resource sharedStorage 'Microsoft.Storage/storageAccounts@2021-09-01' existing = {
+  name: '${abbrs.storageAccountShared}${resourceToken}'
+}
+
+var sharedAccountConnectionString = 'DefaultEndpointsProtocol=https;AccountName=${sharedStorage.name};AccountKey=${sharedStorage.listKeys().keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
+var storageAccountConnectionString = 'DefaultEndpointsProtocol=https;AccountName=${storage.name};AccountKey=${storage.listKeys().keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
+
+var envVars = [
   {
     name: 'AzureWebJobsStorage'
-    value: 'DefaultEndpointsProtocol=https;AccountName=${storage.name};AccountKey=${storage.listKeys().keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
+    value: storageAccountConnectionString
   }
   {
     name: 'APPINSIGHTS_INSTRUMENTATIONKEY'
@@ -42,24 +53,37 @@ var localEnvVars = [
   }
   {
     name: 'FUNCTIONS_WORKER_RUNTIME'
-    value: 'dotnet'
+    value: 'dotnet-isolated'
   }
-]
+  {
+    name: 'AzureWebJobsSharedStorage'
+    value: sharedAccountConnectionString
+  }
+  {
+    name: 'AzureFunctionsJobHost__functions__0'
+    value: functions
+  }
+] 
+
 
 // We have to use ${name}service_name for now because we don't deploy it in azd provision and azd deploy won't find it
 // But the backup search logic will find it via this name.
-resource containerapp 'Microsoft.App/containerApps@2022-03-01' = {
+resource containerapp 'Microsoft.App/containerApps@2022-06-01-preview' = {
   name: '${name}${containerAppName}'
   location: location
   tags: union(tags, { 'azd-service-name': containerAppName })
   properties: {
-    managedEnvironmentId: env.id
+    environmentId: env.id
     configuration: {
       activeRevisionsMode: 'single'
       secrets: [
         {
           name: 'container-registry-password'
           value: acr.listCredentials().passwords[0].value
+        }
+        {
+          name: 'storage-account-shared'
+          value: sharedAccountConnectionString
         }
       ]
       registries: [
@@ -69,7 +93,7 @@ resource containerapp 'Microsoft.App/containerApps@2022-03-01' = {
           passwordSecretRef: 'container-registry-password'
         }
       ]
-      ingress: { 
+      ingress: {
         external: ingress
         targetPort: port
       }
@@ -79,12 +103,13 @@ resource containerapp 'Microsoft.App/containerApps@2022-03-01' = {
         {
           image: image
           name: containerAppName
-          env: union(localEnvVars, envVars)
+          env: envVars
         }
       ]
       scale: {
-        minReplicas: 1
-        maxReplicas: 1
+        minReplicas: minReplicas
+        maxReplicas: maxReplicas
+        rules: scaleRules
       }
     }
   }
