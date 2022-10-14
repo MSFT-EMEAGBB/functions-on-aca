@@ -3,8 +3,8 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS installer-env
 # Build requires 3.1 SDK
 COPY --from=mcr.microsoft.com/dotnet/core/sdk:3.1 /usr/share/dotnet /usr/share/dotnet
 
-COPY . /src/dotnet-function-app
-RUN cd /src/dotnet-function-app && \
+COPY . /src/notification-function-app
+RUN cd /src/notification-function-app && \
     mkdir -p /home/site/wwwroot && \
     dotnet publish *.csproj --output /home/site/wwwroot
 

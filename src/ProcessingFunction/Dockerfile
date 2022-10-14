@@ -3,8 +3,8 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0 AS installer-env
 # Build requires 3.1 SDK
 COPY --from=mcr.microsoft.com/dotnet/sdk:6.0 /usr/share/dotnet /usr/share/dotnet
 
-COPY . /src/dotnet-function-app
-RUN cd /src/dotnet-function-app && \
+COPY . /src/process-function-app
+RUN cd /src/process-function-app && \
     mkdir -p /home/site/wwwroot && \
     dotnet publish *.csproj --output /home/site/wwwroot
 
