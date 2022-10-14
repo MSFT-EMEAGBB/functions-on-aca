@@ -12,11 +12,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/azure-dev-cli-apps:latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Install Azure Dev CLI
-        run: curl -fsSL https://aka.ms/install-azd.sh | bash
       - name: Log in with Azure
         uses: azure/login@v1
         with:
