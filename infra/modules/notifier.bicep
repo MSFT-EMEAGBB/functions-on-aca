@@ -10,6 +10,7 @@ module containerApp 'containerapp.bicep' = {
     name: name
     storageAccountName: 'stn'
     location: location
+    minReplicas: 0
     containerAppName: containerAppName
     functions: 'Notify'
     image: image
