@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 namespace NotificationFunction
 {
@@ -15,9 +16,13 @@ namespace NotificationFunction
 
         [Function("Notify")]
         [QueueOutput("processing-queue", Connection = "SharedStorage")]
-        public string[] Run([TimerTrigger("*/10 * * * * *")] TimerInfo timerInfo)
+        public string[] Run([TimerTrigger("*/1 * * * * *")] TimerInfo timerInfo)
         {
-            return new[] {"Hello"};
+            var ticks = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var payload = JsonSerializer.Serialize(new Notification( $"Hello from {ticks}", (int)ticks));
+            return new[] {payload};
         }
     }
+
+    public record Notification (string payload, int ticks);
 }

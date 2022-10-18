@@ -14,9 +14,14 @@ namespace ProcessingFunction
         }
 
         [Function("Process")]
-        public void Run([QueueTrigger("processing-queue", Connection = "SharedStorage")] string myQueueItem)
+        public async Task Run([QueueTrigger("processing-queue", Connection = "SharedStorage")] Notification notification)
         {
-            _logger.LogInformation($"C# Queue trigger function processed: {myQueueItem}");
+            var random = new Random(notification.ticks);
+            var delay = random.Next(2000,120000);
+            await Task.Delay(delay);
+            _logger.LogInformation($"C# Queue trigger function processed: {notification.payload} with delay of {delay}ms");
         }
     }
+
+    public record Notification (string payload, int ticks);
 }
