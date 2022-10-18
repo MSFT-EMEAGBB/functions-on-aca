@@ -29,7 +29,7 @@ module containerApp 'containerapp.bicep' = {
     storageAccountName: 'stp'
     scaleRules: scaleRules
     minReplicas: 1
-    maxReplicas: 20
+    maxReplicas: 50
     functions: 'Process'
     image: image
     ingress: true
